@@ -12,6 +12,10 @@ const { globalLimiter } = require('./middleware/rateLimiter');
 
 const app = express();
 
+// Penting: Railway (dan platform PaaS lain) jalan di belakang reverse proxy.
+// Tanpa ini, secure cookie & req.secure tidak akan terbaca dengan benar.
+app.set('trust proxy', 1);
+
 app.use(helmet({
   contentSecurityPolicy: false,
 }));
