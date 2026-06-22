@@ -7,7 +7,8 @@ const authLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   skip: (req) => req.isAuthenticated(),
-  keyGenerator: (req) => req.ip
+  keyGenerator: (req) => req.ip,
+  validate: false
 });
 
 const miningLimiter = rateLimit({
@@ -16,7 +17,8 @@ const miningLimiter = rateLimit({
   message: 'Terlalu banyak upload analisis. Silakan coba lagi dalam 1 jam.',
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => req.user ? req.user._id.toString() : req.ip
+  keyGenerator: (req) => req.user ? req.user._id.toString() : req.ip,
+  validate: false
 });
 
 const downloadLimiter = rateLimit({
@@ -25,7 +27,8 @@ const downloadLimiter = rateLimit({
   message: 'Terlalu banyak download. Silakan coba lagi dalam 1 jam.',
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => req.user ? req.user._id.toString() : req.ip
+  keyGenerator: (req) => req.user ? req.user._id.toString() : req.ip,
+  validate: false
 });
 
 const adminLimiter = rateLimit({
@@ -34,7 +37,8 @@ const adminLimiter = rateLimit({
   message: 'Terlalu banyak admin operations. Silakan coba lagi dalam 1 jam.',
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => req.user ? req.user._id.toString() : req.ip
+  keyGenerator: (req) => req.user ? req.user._id.toString() : req.ip,
+  validate: false
 });
 
 const generalLimiter = rateLimit({
@@ -42,7 +46,8 @@ const generalLimiter = rateLimit({
   max: 100,
   message: 'Terlalu banyak request. Silakan coba lagi dalam 1 jam.',
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
+  validate: false
 });
 
 const globalLimiter = rateLimit({
@@ -51,7 +56,8 @@ const globalLimiter = rateLimit({
   message: 'Terlalu banyak request dari IP ini. Silakan coba lagi nanti.',
   standardHeaders: true,
   legacyHeaders: false,
-  skip: (req) => req.ip === '::1' || req.ip === '127.0.0.1'
+  skip: (req) => req.ip === '::1' || req.ip === '127.0.0.1',
+  validate: false
 });
 
 module.exports = {
