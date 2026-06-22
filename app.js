@@ -12,8 +12,6 @@ const { globalLimiter } = require('./middleware/rateLimiter');
 
 const app = express();
 
-// Penting: Railway (dan platform PaaS lain) jalan di belakang reverse proxy.
-// Tanpa ini, secure cookie & req.secure tidak akan terbaca dengan benar.
 app.set('trust proxy', 1);
 
 app.use(helmet({
@@ -21,9 +19,10 @@ app.use(helmet({
 }));
 
 const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/market-basket';
+console.log('Menggunakan MONGODB_URI dari env:', !!process.env.MONGODB_URI);
 
 mongoose.connect(mongoUri)
-  .then(() => console.log('MongoDB Connected:', mongoUri))
+  .then(() => console.log('MongoDB Connected'))
   .catch(err => console.error('MongoDB Connection Error:', err.message));
 
 require('./config/passport')(passport);
@@ -36,16 +35,22 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(methodOverride('_method'));
 
+const sessionStore = MongoStore.create({
+  mongoUrl: mongoUri,
+  ttl: 24 * 60 * 60,
+  autoRemove: 'native'
+});
+
+sessionStore.on('error', (err) => {
+  console.error('Session Store Error:', err.message);
+});
+
 app.use(session({
   secret: process.env.SESSION_SECRET || 'rahasia123',
   resave: false,
   saveUninitialized: false,
-  store: MongoStore.create({ 
-    mongoUrl: mongoUri,
-    ttl: 24 * 60 * 60,
-    autoRemove: 'native'
-  }),
-  cookie: { 
+  store: sessionStore,
+  cookie: {
     maxAge: 24 * 60 * 60 * 1000,
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
@@ -73,6 +78,10 @@ app.use((err, req, res, next) => {
   console.error('Error:', err);
   req.flash('error', err.message || 'Terjadi kesalahan server');
   res.status(500).redirect('/');
+});
+
+process.on('unhandledRejection', (err) => {
+  console.error('Unhandled Rejection:', err);
 });
 
 const PORT = process.env.PORT || 3000;
