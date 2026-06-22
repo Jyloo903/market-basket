@@ -1,0 +1,213 @@
+<%- include('partials/header', { title: 'Hasil Analisis FP-Growth' }) %>
+
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-12">
+
+      <div class="card shadow mb-4">
+        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+          <div>
+            <h4 class="mb-0"><i class="bi bi-graph-up-arrow"></i> Hasil Market Basket Analysis</h4>
+            <small class="opacity-75">
+              Metode: <strong><%= parseInfo.method %></strong> &nbsp;|&nbsp;
+              Format data: <strong><%= parseInfo.detectedFormat === 'raw' ? 'Raw Perusahaan (1 item/baris)' : 'Legacy (item dipisah koma)' %></strong>
+            </small>
+          </div>
+          <% if (analysis.pptPath) { %>
+            <a href="/mining/download-report/<%= analysis._id %>" class="btn btn-light btn-sm">
+              <i class="bi bi-download"></i> Download PPT
+            </a>
+          <% } %>
+        </div>
+
+        <div class="card-body">
+
+          <div class="row mb-4">
+            <div class="col-6 col-md-3 mb-3">
+              <div class="card bg-primary text-white text-center py-3">
+                <h3 class="mb-0"><%= parseInfo.totalTransactions || 0 %></h3>
+                <small>Total Transaksi</small>
+              </div>
+            </div>
+            <div class="col-6 col-md-3 mb-3">
+              <div class="card bg-info text-white text-center py-3">
+                <h3 class="mb-0"><%= miningResult.totalRules || 0 %></h3>
+                <small>Rules Ditemukan</small>
+              </div>
+            </div>
+            <div class="col-6 col-md-3 mb-3">
+              <div class="card bg-warning text-dark text-center py-3">
+                <h3 class="mb-0"><%= (analysis.parameters && analysis.parameters.support ? (analysis.parameters.support * 100).toFixed(0) : '10') %>%</h3>
+                <small>Min Support</small>
+              </div>
+            </div>
+            <div class="col-6 col-md-3 mb-3">
+              <div class="card bg-danger text-white text-center py-3">
+                <h3 class="mb-0"><%= (analysis.parameters && analysis.parameters.confidence ? (analysis.parameters.confidence * 100).toFixed(0) : '60') %>%</h3>
+                <small>Min Confidence</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert alert-info mb-4">
+            <i class="bi bi-info-circle"></i>
+            <strong>File:</strong> <%= parseInfo.fileName %> &nbsp;|&nbsp;
+            <strong>Tanggal Analisis:</strong> <%= new Date(analysis.createdAt).toLocaleDateString('id-ID', { year:'numeric', month:'long', day:'numeric' }) %>
+          </div>
+
+          <% 
+            const itemStats = miningResult.itemStats || [];
+            if (itemStats.length > 0) { 
+          %>
+          <div class="card mb-4 border-0 bg-light">
+            <div class="card-header bg-secondary text-white">
+              <h5 class="mb-0"><i class="bi bi-bar-chart-line"></i> Top 10 Produk Terlaris</h5>
+            </div>
+            <div class="card-body pb-2">
+              <% itemStats.forEach((s, i) => { 
+                let supportPercent = 0;
+                if (s && typeof s.support === 'number' && !isNaN(s.support)) {
+                  supportPercent = (s.support * 100).toFixed(1);
+                }
+                let itemName = (s && s.item) ? s.item : '-';
+                let itemCount = (s && typeof s.count === 'number') ? s.count : 0;
+              %>
+                <div class="d-flex align-items-center mb-2">
+                  <span class="badge bg-secondary me-2" style="width:28px"><%= i+1 %></span>
+                  <span class="me-2" style="min-width:140px"><%= itemName %></span>
+                  <div class="progress flex-grow-1" style="height: 18px;">
+                    <div class="progress-bar bg-success" style="width: <%= supportPercent %>%;">
+                      <%= supportPercent %>%
+                    </div>
+                  </div>
+                  <small class="ms-2 text-muted"><%= itemCount %> transaksi</small>
+                </div>
+              <% }); %>
+            </div>
+          </div>
+          <% } %>
+
+          <h5 class="fw-bold mb-3"><i class="bi bi-table"></i> Association Rules</h5>
+          <div class="table-responsive">
+            <table class="table table-hover table-striped table-bordered align-middle">
+              <thead class="table-dark">
+                <tr>
+                  <th>#</th>
+                  <th>Antecedent (A)</th>
+                  <th>Consequent (B)</th>
+                  <th title="Frekuensi kemunculan bersama">Support</th>
+                  <th title="P(B|A) — keyakinan A→B">Confidence</th>
+                  <th title="Lift > 1 = korelasi positif">Lift</th>
+                  <th title="Makin tinggi makin kuat hubungannya">Conviction</th>
+                  <th title="Metric simetris — lebih adil dari confidence">Kulczynski</th>
+                  <th title="Selisih observasi vs independen">Leverage</th>
+                  <th>Kekuatan</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% const rules = miningResult.rules || [];
+                   if (rules.length > 0) { 
+                     rules.forEach((rule, idx) => { 
+                       let antecedent = rule.antecedent || '-';
+                       let consequent = rule.consequent || '-';
+                       let support = (rule.support && !isNaN(rule.support)) ? (rule.support * 100).toFixed(2) : '0.00';
+                       let confidence = (rule.confidence && !isNaN(rule.confidence)) ? (rule.confidence * 100).toFixed(2) : '0.00';
+                       let liftVal = (rule.lift && !isNaN(rule.lift)) ? rule.lift : 0;
+                       let lift = liftVal.toFixed(3);
+                       let conviction = (rule.conviction && rule.conviction !== 999 && !isNaN(rule.conviction)) ? rule.conviction.toFixed(3) : '∞';
+                       let kulczynski = (rule.kulczynski && !isNaN(rule.kulczynski)) ? (rule.kulczynski * 100).toFixed(2) : '0.00';
+                       let leverage = (rule.leverage && !isNaN(rule.leverage)) ? rule.leverage.toFixed(4) : '0.0000';
+                       let strength = rule.strength || 'Lemah';
+                       let liftClass = (liftVal >= 2) ? 'text-success' : (liftVal >= 1) ? 'text-warning' : 'text-danger';
+                       let badgeMap = { 'Sangat Kuat':'success','Kuat':'primary','Sedang':'warning','Lemah':'secondary' };
+                       let badge = badgeMap[strength] || 'secondary';
+                %>
+                  <tr>
+                    <td><%= idx + 1 %></td>
+                    <td><span class="badge bg-primary"><%= antecedent %></span></td>
+                    <td><span class="badge bg-success"><%= consequent %></span></td>
+                    <td><%= support %>%</td>
+                    <td><%= confidence %>%</td>
+                    <td><span class="fw-bold <%= liftClass %>"><%= lift %></span></td>
+                    <td><%= conviction %></td>
+                    <td><%= kulczynski %>%</td>
+                    <td><%= leverage %>\n                    <td><span class="badge bg-<%= badge %>"><%= strength %></span></td>
+                  </tr>
+                <% }); } else { %>
+                  <tr>
+                    <td colspan="10" class="text-center text-muted py-4">
+                      <i class="bi bi-exclamation-circle"></i>
+                      Tidak ada rules yang memenuhi kriteria. Coba turunkan nilai minimum support atau confidence.
+                    </td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="card bg-light border-0 mt-3 mb-4">
+            <div class="card-body py-2">
+              <small class="text-muted">
+                <strong>Panduan metrik:</strong>
+                <strong>Lift &gt; 1</strong> = korelasi positif &nbsp;|&nbsp;
+                <strong>Conviction &gt; 1</strong> = A benar-benar mempengaruhi B &nbsp;|&nbsp;
+                <strong>Kulczynski ≥ 0.5</strong> = hubungan seimbang &nbsp;|&nbsp;
+                <strong>Leverage &gt; 0</strong> = lebih sering dari kebetulan
+              </small>
+            </div>
+          </div>
+
+          <div class="card border-warning mt-2">
+            <div class="card-header bg-warning text-dark">
+              <h5 class="mb-0"><i class="bi bi-lightbulb"></i> Insight Bisnis & Rekomendasi</h5>
+            </div>
+            <div class="card-body">
+              <% if (rules.length > 0) { %>
+                <h6 class="fw-bold">Top 5 Rules Terkuat:</h6>
+                <ul>
+                  <% rules.slice(0, 5).forEach(rule => { 
+                     let conf = (rule.confidence && !isNaN(rule.confidence)) ? (rule.confidence*100).toFixed(1) : '0';
+                     let lift = (rule.lift && !isNaN(rule.lift)) ? rule.lift.toFixed(2) : '0';
+                     let desc = rule.description || 'Tidak ada deskripsi';
+                  %>
+                    <li class="mb-2">
+                      <strong><%= rule.antecedent %> → <%= rule.consequent %></strong>
+                      <span class="badge bg-primary ms-1">conf <%= conf %>%</span>
+                      <span class="badge bg-success ms-1">lift <%= lift %></span>
+                      <br>
+                      <small class="text-muted"><%= desc %></small>
+                    </li>
+                  <% }); %>
+                </ul>
+                <hr>
+                <h6 class="fw-bold">💡 Rekomendasi Bisnis:</h6>
+                <ul class="mb-0">
+                  <li>Buat <strong>paket bundel</strong> produk berdasarkan rules dengan confidence &amp; lift tertinggi.</li>
+                  <li>Tempatkan produk yang sering dibeli bersamaan di <strong>rak berdekatan</strong>.</li>
+                  <li>Gunakan rules untuk <strong>cross-selling otomatis</strong> di sistem POS/e-commerce.</li>
+                  <li>Prioritaskan rules dengan <strong>Kulczynski ≥ 0.5</strong> — hubungan paling seimbang dan andal.</li>
+                  <li>Filter rules dengan <strong>Conviction &gt; 1.5</strong> untuk rekomendasi produk yang paling berdampak.</li>
+                  <li>Analisis ulang setiap bulan untuk mengikuti <strong>perubahan perilaku konsumen</strong>.</li>
+                </ul>
+              <% } else { %>
+                <div class="alert alert-warning mb-0">
+                  <i class="bi bi-exclamation-triangle"></i>
+                  Tidak ada rules. Coba turunkan minimum support ke 0.05 atau confidence ke 0.3.
+                </div>
+              <% } %>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="mb-5">
+        <a href="/mining"    class="btn btn-outline-primary me-2"><i class="bi bi-arrow-left"></i> Upload Baru</a>
+        <a href="/dashboard" class="btn btn-outline-secondary"><i class="bi bi-house"></i> Dashboard</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

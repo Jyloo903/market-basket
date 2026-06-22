@@ -1,0 +1,178 @@
+<%- include('partials/header', { title: 'Market Basket Analysis' }) %>
+
+<div class="hero">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6">
+        <h1>Analisis Pola Pembelian Pelanggan</h1>
+        <p class="lead mb-4">Gunakan algoritma FP-Growth untuk menemukan insight tersembunyi dari data transaksi Anda. Optimalkan strategi cross-selling dan tingkatkan revenue bisnis Anda.</p>
+        <div class="d-flex gap-2">
+          <% if (typeof user === 'undefined' || !user) { %>
+            <a href="/auth/register" class="btn btn-light btn-lg">Mulai Gratis</a>
+            <a href="/auth/login" class="btn btn-outline-light btn-lg">Login</a>
+          <% } else { %>
+            <a href="/mining" class="btn btn-light btn-lg">Upload Analisis</a>
+            <a href="/dashboard" class="btn btn-outline-light btn-lg">Dashboard</a>
+          <% } %>
+        </div>
+      </div>
+      <div class="col-lg-6 text-center">
+        <svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg" style="opacity: 0.9;">
+          <circle cx="150" cy="150" r="140" stroke="white" stroke-width="2" fill="none"/>
+          <circle cx="100" cy="120" r="40" stroke="white" stroke-width="2" fill="rgba(255,255,255,0.1)"/>
+          <circle cx="200" cy="120" r="40" stroke="white" stroke-width="2" fill="rgba(255,255,255,0.1)"/>
+          <circle cx="150" cy="200" r="40" stroke="white" stroke-width="2" fill="rgba(255,255,255,0.1)"/>
+          <line x1="100" y1="120" x2="200" y2="120" stroke="white" stroke-width="2" opacity="0.6"/>
+          <line x1="100" y1="120" x2="150" y2="200" stroke="white" stroke-width="2" opacity="0.6"/>
+          <line x1="200" y1="120" x2="150" y2="200" stroke="white" stroke-width="2" opacity="0.6"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container my-5">
+  <div class="row mb-5">
+    <div class="col-lg-8 mx-auto text-center">
+      <h2 class="mb-3">Fitur Utama</h2>
+      <p class="text-secondary fs-5">Platform lengkap untuk menganalisis pola pembelian dan membuat keputusan bisnis yang lebih baik</p>
+    </div>
+  </div>
+
+  <div class="row g-4 mb-5">
+    <div class="col-md-6 col-lg-4">
+      <div class="feature-card">
+        <div class="card-body p-4">
+          <div class="mb-3">
+            <i class="bi bi-file-earmark-excel" style="font-size: 32px; color: #2563eb;"></i>
+          </div>
+          <h5>Upload Data Transaksi</h5>
+          <p class="text-secondary mb-0">Dukung format Excel (.xlsx, .xls, .csv) dengan maksimal 10MB per file</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+      <div class="feature-card">
+        <div class="card-body p-4">
+          <div class="mb-3">
+            <i class="bi bi-lightning-charge" style="font-size: 32px; color: #2563eb;"></i>
+          </div>
+          <h5>Analisis FP-Growth</h5>
+          <p class="text-secondary mb-0">Algoritma machine learning untuk menemukan pola asosiasi produk</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+      <div class="feature-card">
+        <div class="card-body p-4">
+          <div class="mb-3">
+            <i class="bi bi-file-ppt" style="font-size: 32px; color: #2563eb;"></i>
+          </div>
+          <h5>Laporan PowerPoint</h5>
+          <p class="text-secondary mb-0">Generate laporan interaktif otomatis dalam format presentasi</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+      <div class="feature-card">
+        <div class="card-body p-4">
+          <div class="mb-3">
+            <i class="bi bi-graph-up" style="font-size: 32px; color: #2563eb;"></i>
+          </div>
+          <h5>Support & Confidence</h5>
+          <p class="text-secondary mb-0">Kontrol parameter analisis sesuai kebutuhan bisnis Anda</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+      <div class="feature-card">
+        <div class="card-body p-4">
+          <div class="mb-3">
+            <i class="bi bi-shield-check" style="font-size: 32px; color: #2563eb;"></i>
+          </div>
+          <h5>Keamanan Data</h5>
+          <p class="text-secondary mb-0">Sistem login aman dengan enkripsi dan rate limiting</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+      <div class="feature-card">
+        <div class="card-body p-4">
+          <div class="mb-3">
+            <i class="bi bi-person-workspace" style="font-size: 32px; color: #2563eb;"></i>
+          </div>
+          <h5>Multi-User Support</h5>
+          <p class="text-secondary mb-0">Dashboard untuk setiap pengguna dengan role-based access</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="my-5">
+
+  <div class="row">
+    <div class="col-lg-8 mx-auto">
+      <div style="background-color: #f9fafb; padding: 3rem; border-radius: 10px; border: 1px solid #e5e7eb;">
+        <h3 class="mb-3">Bagaimana cara kerjanya?</h3>
+        <ol class="ms-3" style="line-height: 2;">
+          <li class="mb-2"><strong>Siapkan data</strong> — Export transaksi penjualan Anda dalam format Excel dengan kolom produk dan tanggal</li>
+          <li class="mb-2"><strong>Upload file</strong> — Unggah file ke platform (maksimal 10MB)</li>
+          <li class="mb-2"><strong>Atur parameter</strong> — Tentukan minimum support dan confidence untuk analisis</li>
+          <li class="mb-2"><strong>Jalankan analisis</strong> — Sistem akan memproses data menggunakan FP-Growth</li>
+          <li><strong>Lihat hasil</strong> — Dapatkan insights dan download laporan PowerPoint</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>
+    <div class="col-md-4 mb-4">
+      <div class="card feature-card h-100">
+        <div class="card-body text-center p-4">
+          <i class="bi bi-clock-history" style="font-size: 48px; color: #667eea;"></i>
+          <h5 class="card-title mt-3">Riwayat Analisis</h5>
+          <p class="card-text text-muted">Simpan dan akses kembali hasil analisis sebelumnya kapan saja</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="bg-light py-5">
+  <div class="container">
+    <h2 class="text-center mb-4 fw-bold">Cara Kerja</h2>
+    <div class="row text-center">
+      <div class="col-md-3 mb-3">
+        <div class="bg-white p-3 rounded shadow-sm">
+          <h1 class="text-primary">1</h1>
+          <h6>Register/Login</h6>
+          <small class="text-muted">Buat akun gratis</small>
+        </div>
+      </div>
+      <div class="col-md-3 mb-3">
+        <div class="bg-white p-3 rounded shadow-sm">
+          <h1 class="text-primary">2</h1>
+          <h6>Upload Excel</h6>
+          <small class="text-muted">Data transaksi Anda</small>
+        </div>
+      </div>
+      <div class="col-md-3 mb-3">
+        <div class="bg-white p-3 rounded shadow-sm">
+          <h1 class="text-primary">3</h1>
+          <h6>Analisis</h6>
+          <small class="text-muted">Proses otomatis</small>
+        </div>
+      </div>
+      <div class="col-md-3 mb-3">
+        <div class="bg-white p-3 rounded shadow-sm">
+          <h1 class="text-primary">4</h1>
+          <h6>Download PPT</h6>
+          <small class="text-muted">Laporan siap presentasi</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

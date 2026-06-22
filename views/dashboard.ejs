@@ -1,0 +1,146 @@
+<%- include('partials/header', { title: 'Dashboard' }) %>
+
+<div class="container mt-4">
+  <div class="row mb-4">
+    <div class="col">
+      <h2 class="fw-bold"><i class="bi bi-speedometer2"></i> Dashboard</h2>
+      <p class="text-muted">Selamat datang, <%= user.name %>!</p>
+    </div>
+  </div>
+
+  <div class="row mb-4">
+    <div class="col-md-4 mb-3">
+      <div class="card bg-primary text-white">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="card-title">Total Analisis</h6>
+              <h2 class="mb-0"><%= typeof analyses !== 'undefined' ? analyses.length : 0 %></h2>
+            </div>
+            <i class="bi bi-file-earmark-bar-graph" style="font-size: 40px; opacity: 0.5;"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 mb-3">
+      <div class="card bg-success text-white">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="card-title">Role</h6>
+              <h2 class="mb-0"><%= user.role === 'admin' ? 'Admin' : 'User' %></h2>
+            </div>
+            <i class="bi bi-person-badge" style="font-size: 40px; opacity: 0.5;"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 mb-3">
+      <div class="card bg-info text-white">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="card-title">Perusahaan</h6>
+              <h2 class="mb-0"><%= user.company || '-' %></h2>
+            </div>
+            <i class="bi bi-building" style="font-size: 40px; opacity: 0.5;"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6 mb-4">
+      <div class="card h-100">
+        <div class="card-body text-center py-5">
+          <i class="bi bi-cloud-upload" style="font-size: 48px; color: #667eea;"></i>
+          <h5 class="card-title mt-3">Upload & Analisis Baru</h5>
+          <p class="card-text text-muted">Upload file Excel transaksi dan dapatkan insight pembelian</p>
+          <a href="/mining" class="btn btn-primary">
+            <i class="bi bi-arrow-right"></i> Mulai Analisis
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 mb-4">
+      <div class="card h-100">
+        <div class="card-body text-center py-5">
+          <i class="bi bi-clock-history" style="font-size: 48px; color: #667eea;"></i>
+          <h5 class="card-title mt-3">Riwayat Analisis</h5>
+          <p class="card-text text-muted">Lihat dan download hasil analisis sebelumnya</p>
+          <a href="/mining" class="btn btn-outline-primary">
+            <i class="bi bi-list"></i> Lihat Riwayat
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <% if (typeof analyses !== 'undefined' && analyses.length > 0) { %>
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="bi bi-list-ul"></i> Analisis Terbaru</h5>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>File</th>
+                    <th>Tanggal</th>
+                    <th>Rules</th>
+                    <th>Support</th>
+                    <th>Confidence</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% analyses.forEach(item => { %>
+                    <tr>
+                      <td><%= item.fileName %></td>
+                      <td><%= new Date(item.createdAt).toLocaleDateString('id-ID') %></td>
+                      <td><%= item.parameters.totalRules || 0 %></td>
+                      <td><%= (item.parameters.support * 100).toFixed(0) %>%</td>
+                      <td><%= (item.parameters.confidence * 100).toFixed(0) %>%</td>
+                      <td>
+                        <a href="/mining/result/<%= item._id %>" class="btn btn-sm btn-primary">
+                          <i class="bi bi-eye"></i> Lihat
+                        </a>
+                        <a href="/mining/download-report/<%= item._id %>" class="btn btn-sm btn-success">
+                          <i class="bi bi-download"></i> PPT
+                        </a>
+                      </td>
+                    </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% } %>
+  <% if (typeof analyses === 'undefined' || analyses.length === 0) { %>
+    <div class="text-center py-5">
+      <i class="bi bi-inbox" style="font-size: 64px; color: #ccc;"></i>
+      <h4 class="text-muted mt-3">Belum ada analisis</h4>
+      <p class="text-muted">Upload file Excel pertama Anda untuk memulai</p>
+      <a href="/mining" class="btn btn-primary">Upload Sekarang</a>
+    </div>
+  <% } %>
+
+  <% if (user.role === 'admin') { %>
+    <div class="alert alert-info mt-4">
+      <i class="bi bi-shield-lock"></i> 
+      <strong>Admin Access</strong> - Anda memiliki akses administrator
+      <a href="/admin/dashboard" class="btn btn-sm btn-info ms-2">
+        <i class="bi bi-arrow-right"></i> Admin Panel
+      </a>
+    </div>
+  <% } %>
+</div>
+
+<%- include('partials/footer') %>

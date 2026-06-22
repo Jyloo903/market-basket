@@ -1,0 +1,121 @@
+<%- include('partials/header', { title: 'Upload Excel' }) %>
+
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      
+      <div class="card shadow mb-4">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0"><i class="bi bi-cloud-upload"></i> Upload File Excel</h4>
+        </div>
+        <div class="card-body p-4">
+          
+          <form action="/mining/upload" method="POST" enctype="multipart/form-data">
+            <div class="mb-3">
+              <label class="form-label fw-bold">Pilih File Excel</label>
+              <input type="file" name="excelFile" class="form-control" accept=".xlsx,.xls,.csv" required>
+              <small class="text-muted">
+                Format: .xlsx, .xls, .csv (Max 10MB)<br>
+                Mendukung dua format: <strong>Raw (1 item per baris)</strong> atau <strong>Legacy (items dipisah koma dalam 1 sel)</strong>.
+              </small>
+            </div>
+            
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Minimum Support</label>
+                <input type="number" name="minSupport" class="form-control" 
+                       value="0.1" step="0.01" min="0.01" max="1" required>
+                <small class="text-muted">0.1 = 10% dari total transaksi</small>
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Minimum Confidence</label>
+                <input type="number" name="minConfidence" class="form-control" 
+                       value="0.6" step="0.01" min="0.01" max="1" required>
+                <small class="text-muted">0.6 = 60% tingkat keyakinan</small>
+              </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-lg w-100">
+              <i class="bi bi-cpu"></i> Mulai Analisis & Generate PPT
+            </button>
+          </form>
+        </div>
+      </div>
+      
+      <div class="card shadow mb-4">
+        <div class="card-header bg-info text-white">
+          <h5 class="mb-0"><i class="bi bi-table"></i> Contoh Format Excel</h5>
+        </div>
+        <div class="card-body">
+          <p><strong>Format Legacy (satu baris per transaksi):</strong></p>
+          <table class="table table-sm table-bordered">
+            <thead class="table-light">
+              <tr><th>Transaksi</th><th>Tanggal</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Susu, Roti, Butter</td><td>2024-01-15</td></tr>
+              <tr><td>Telur, Roti, Keju</td><td>2024-01-15</td></tr>
+            </tbody>
+          </table>
+          <p><strong>Format Raw (banyak baris per transaksi):</strong></p>
+          <table class="table table-sm table-bordered">
+            <thead class="table-light">
+              <tr><th>No_Transaksi</th><th>Produk</th><th>Tanggal</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>TRX001</td><td>Kopi</td><td>2024-01-15</td></tr>
+              <tr><td>TRX001</td><td>Gula</td><td>2024-01-15</td></tr>
+              <tr><td>TRX002</td><td>Roti</td><td>2024-01-16</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <% if (typeof analyses !== 'undefined' && analyses.length > 0) { %>
+        <div class="card shadow">
+          <div class="card-header bg-success text-white">
+            <h5 class="mb-0"><i class="bi bi-history"></i> Riwayat Analisis</h5>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead class="table-light">
+                  <tr>
+                    <th>File</th>
+                    <th>Tanggal</th>
+                    <th>Total Rules</th>
+                    <th>Support</th>
+                    <th>Confidence</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% analyses.forEach(analysis => { %>
+                    <tr>
+                      <td><i class="bi bi-file-earmark-excel"></i> <%= analysis.fileName %></td>
+                      <td><%= new Date(analysis.createdAt).toLocaleDateString('id-ID') %></td>
+                      <td><span class="badge bg-info"><%= analysis.parameters.totalRules %></span></td>
+                      <td><%= (analysis.parameters.support * 100).toFixed(0) %>%</td>
+                      <td><%= (analysis.parameters.confidence * 100).toFixed(0) %>%</td>
+                      <td>
+                        <a href="/mining/result/<%= analysis._id %>" class="btn btn-sm btn-info">
+                          <i class="bi bi-eye"></i> Lihat
+                        </a>
+                        <a href="/mining/download-report/<%= analysis._id %>" class="btn btn-sm btn-success">
+                          <i class="bi bi-download"></i> PPT
+                        </a>
+                      </td>
+                    </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

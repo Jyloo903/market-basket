@@ -1,0 +1,55 @@
+<%- include('partials/header', { title: 'Login' }) %>
+
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-5 col-lg-4">
+      <div class="card">
+        <div class="card-body p-4">
+          <div class="text-center mb-4">
+            <div class="mb-3">
+              <i class="bi bi-graph-up-arrow" style="font-size: 40px; color: #2563eb;"></i>
+            </div>
+            <h4>Login ke Akun Anda</h4>
+            <p class="text-secondary small">Masukkan email dan password untuk melanjutkan</p>
+          </div>
+          
+          <% if (typeof error_msg !== 'undefined' && error_msg.length > 0) { %>
+            <div class="alert alert-danger alert-dismissible fade show mb-3">
+              <i class="bi bi-exclamation-circle-fill"></i>
+              <strong></strong> <%= error_msg[0] %>
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+          <% } %>
+          
+          <% if (typeof success_msg !== 'undefined' && success_msg.length > 0) { %>
+            <div class="alert alert-success alert-dismissible fade show mb-3">
+              <i class="bi bi-check-circle-fill"></i>
+              <strong></strong> <%= success_msg[0] %>
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+          <% } %>
+          
+          <form action="/auth/login" method="POST">
+            <div class="mb-3">
+              <label class="form-label">Email Address</label>
+              <input type="email" name="email" class="form-control" placeholder="name@example.com" required autofocus>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Password</label>
+              <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 py-2 mb-3">
+              Login
+            </button>
+          </form>
+          
+          <p class="text-center small text-secondary mb-0">
+            Belum punya akun? <a href="/auth/register" class="fw-semibold text-decoration-none">Daftar sekarang</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>
